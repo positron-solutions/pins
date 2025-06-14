@@ -63,4 +63,15 @@ Having nixpkgs pinned can also speed up a lot of operations.  In the Nix
 registry, you can make your nixpkgs depend on the version found in this repo.
 Instead of downloading new versions of nixpkgs for basic commands like `nix
 search`, the same version of packages will be used.  If you add a package to a
-project, it will be the same version as one obtained from running `nix shell`
+project, it will be the same version as one obtained from running `nix shell`.
+To pin nixpkgs, just add a pin pointing to the same rev visible in `nix flake
+metadata`.  (We would like to delegate this to the pins reference in the
+registry but this might not be posssible with the current version of the Nix
+binary).
+
+```nix
+nix registry pin nixpkgs github:NixOS/nixpkgs/f0946fa5f1fb876a9dc2e1850d9d3a4e3f914092
+```
+
+After a nix command obtains nixpkgs once, it won't download it again until you
+update the registry pin.
