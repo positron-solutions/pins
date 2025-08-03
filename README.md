@@ -3,23 +3,21 @@
 This repo demonstrates a solution for centralizing all of your dependency
 declarations for your projects.
 
-The contained Nix flake provides the inputs that our projects use.  Because of
-how Nix lockfiles work, udpates to dependent projects are lazy and you can
-update them individually whenever it is convenient.  Projects can also override
-the flake in-detail.  It provides the advantages of central declaration while
-retaining the flexibility of polyrepo.
+Read about it [on our blog](https://positron.solutions/articles/centralizing-nix-dependencies).
 
-It is made available by adding this flake to your registry:
+The contained Nix flake provides the inputs like those that our projects use.
+Because of how Nix lockfiles work, updates to dependent projects are lazy and
+you can update them individually whenever it is convenient.  Projects can also
+override the flake in-detail.  It provides the advantages of central declaration
+while retaining the flexibility of polyrepo.
 
-```
-nix registry add pins git+https://github.com/positron-solutions/pins.git
-```
-
-In downstream projects, we declare our inputs relative to pins, like so:
+In downstream projects, we declare pins as the only concrete input and every
+other input comes from pins.  This centralizes all concrete input definitions in
+pins and makes its lock file control all of our leaf repos.
 
 ```nix
   inputs = {
-    pins.url = "pins";
+    pins.url = "git+https://github.com/positron-solutions/pins.git";
 
     systems.follows = "pins/systems";
     nixpkgs.follows = "pins/nixpkgs";
@@ -29,45 +27,45 @@ In downstream projects, we declare our inputs relative to pins, like so:
   };
 ```
 
-
 To reveal that all inputs share dependency versions, show the dependency tree:
 ```
 nix flake metadata
 ```
 
+Inputs that don't use `follows` should be made explicit inputs of the pins flake
+and then the dependent input should follow the top-level explicit input.
+
 ## Maintenance
 
-Every six months or so, Nixpkgs cuts a new branch.  Update the `24.11` names in
-the flake.nix and then update the lockfile:
+Nix is a rolling release with periodic stable branches.  Every six months or so,
+Nixpkgs cuts a new branch.  Edit the branch, such as `25.05`, in the flake.nix
+and then update the lockfile: 
 
 ```
-nix flake lock --update-input nixpkgs
+nix flake update nixpkgs
 ```
 
-Update other inputs using similar commands as desired.  Do not update them too
-frequently without updating pins in downstream projects:
+Update other inputs using `nix flake update`.
+
+Finally, upate the pins flake in all of your leaf repos.
 
 ```
-nix flake lock --update-input pins
+nix flake update pins
 ```
 
-## Pinned Flakes
+## Synchronization of CLI Commands With the Registry
 
-The Fenix flake should be of particular interest.  It effectively pins a Rust
-version.  Updating Fenix will therefore update the version of Rust that is
-avaialable in downstream.  Again, just update the input for Fenix in each
-project.  If a project doesn't work, roll back its lock file and fix it when you
-get more time.
+Having nixpkgs pinned to the same rev that your repos are using further speed up
+a lot of nix CLI operations.  In the Nix registry, you can make your nixpkgs
+depend on the version found in this repo.  Instead of downloading new versions
+of nixpkgs for basic commands like `nix search`, the same version of packages
+will be used.  If you add a package to a project, it will be the same version as
+one obtained from running `nix shell`.
 
-Having nixpkgs pinned can also speed up a lot of operations.  In the Nix
-registry, you can make your nixpkgs depend on the version found in this repo.
-Instead of downloading new versions of nixpkgs for basic commands like `nix
-search`, the same version of packages will be used.  If you add a package to a
-project, it will be the same version as one obtained from running `nix shell`.
 To pin nixpkgs, just add a pin pointing to the same rev visible in `nix flake
 metadata`.  (We would like to delegate this to the pins reference in the
-registry but this might not be posssible with the current version of the Nix
-binary).
+registry but this might not be possible with the current version of the Nix
+package manager).
 
 ```nix
 nix registry pin nixpkgs github:NixOS/nixpkgs/f0946fa5f1fb876a9dc2e1850d9d3a4e3f914092
