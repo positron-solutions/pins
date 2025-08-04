@@ -1,7 +1,8 @@
 # Pins
 
-This repo demonstrates a solution for centralizing all of your dependency
-declarations for your projects.
+This repo demonstrates a solution to control upgrades centrally, meaning all
+your leaf repos get the same version and you only need to pin in one place and
+update one input in leaf repos.
 
 Read about it [on our blog](https://positron.solutions/articles/centralizing-nix-dependencies).
 
