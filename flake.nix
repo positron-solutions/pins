@@ -18,6 +18,9 @@
     # dispersion between our nixpkgs and the lib version used by flake-parts.
     # At least it is pinned.
     nixpkgs-lib.url = "github:nix-community/nixpkgs.lib";
+
+    jail-nix.url = "sourcehut:~alexdavid/jail.nix";
+
     flake-parts = {
       inputs.nixpkgs-lib.follows = "nixpkgs-lib";
       url = "github:hercules-ci/flake-parts";
