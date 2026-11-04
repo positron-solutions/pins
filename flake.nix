@@ -1,6 +1,6 @@
 {
   description = "Centrally pinned inputs for our projects.";
-  inputs  = {
+  inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     home-manager = {
@@ -46,9 +46,11 @@
           hash = "sha256-SjpfM963Zux+H5QhK8prvDLuI56fP5PqX5gcVbthRx4=";
         };
 
-        cargoHash = if prev.stdenv.isDarwin
-        then "sha256-Da9ei4yAOfhSQmQgrUDZCmMeJXTfGnYhI1+L0JT/ECs="
-        else "sha256-7nFDftc468mB3TbnKbEb5xEYEQzTtgFaX6uWodmLwRI=";
+        cargoHash =
+          if prev.stdenv.isDarwin then
+            "sha256-Da9ei4yAOfhSQmQgrUDZCmMeJXTfGnYhI1+L0JT/ECs="
+          else
+            "sha256-7nFDftc468mB3TbnKbEb5xEYEQzTtgFaX6uWodmLwRI=";
 
         buildInputs = prev.lib.optionals prev.stdenv.isDarwin [
           prev.darwin.apple_sdk.frameworks.SystemConfiguration
